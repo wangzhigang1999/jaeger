@@ -22,8 +22,8 @@ To set mongodb as storge backend, simply add these commands :
 --span-storage.type="mongo"
 --mongo_url="xxx" 			# default as localhost
 --mogo_port=xxx 			# default as 27017
---mongo_database="xxx" 		# default as sock-shop
---mongo_colection="xxx" 	# default as span
+--mongo_database="xxx" 		        # default as sock-shop
+--mongo_colection="xxx" 	        # default as span
 --mongo_user="xxx" 			# default as root
 --mongo_pass="xxx" 			# default as root
 ```
@@ -52,6 +52,7 @@ type Span struct {
 > To meet our needs, we will write a parsed span to mongo too. You could remove it if don’t needed.
 
 ```go
+// plugin/storage/mongo/writer.go
 func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
 	mSpan := Span{
 		TraceID:       span.TraceID.String(),
