@@ -18,6 +18,7 @@ package storage
 import (
 	"flag"
 	"fmt"
+	"github.com/jaegertracing/jaeger/plugin/storage/mongo"
 	"io"
 
 	"github.com/spf13/viper"
@@ -45,6 +46,7 @@ const (
 	kafkaStorageType         = "kafka"
 	grpcPluginStorageType    = "grpc-plugin"
 	badgerStorageType        = "badger"
+	mongoStorageType         = "mongo"
 
 	downsamplingRatio    = "downsampling.ratio"
 	downsamplingHashSalt = "downsampling.hashsalt"
@@ -65,6 +67,7 @@ var AllStorageTypes = []string{
 	kafkaStorageType,
 	badgerStorageType,
 	grpcPluginStorageType,
+	mongoStorageType,
 }
 
 // AllSamplingStorageTypes returns all storage backends that implement adaptive sampling
@@ -132,6 +135,8 @@ func (f *Factory) getFactoryOfType(factoryType string) (storage.Factory, error) 
 		return badger.NewFactory(), nil
 	case grpcPluginStorageType:
 		return grpc.NewFactory(), nil
+	case mongoStorageType:
+		return mongo.NewFactory(), nil
 	default:
 		return nil, fmt.Errorf("unknown storage type %s. Valid types are %v", factoryType, AllStorageTypes)
 	}

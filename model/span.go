@@ -76,6 +76,22 @@ func (s *Span) GetSamplerType() string {
 	return samplerTypeUnknown
 }
 
+// GetSpanStatus returns the status code for span
+func (s *Span) GetSpanStatus() (spanStatus string, found bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.HTTPStatusCode)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+// GetSpanService return the service name for span
+func (s *Span) GetSpanService() (spanService string, found bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.Component)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
 // IsRPCClient returns true if the span represents a client side of an RPC,
 // as indicated by the `span.kind` tag set to `client`.
 func (s *Span) IsRPCClient() bool {
