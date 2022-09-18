@@ -84,8 +84,13 @@ func (s *Span) GetSpanStatus() (spanStatus string, found bool) {
 	return "", false
 }
 
-// GetSpanService return the service name for span
+// GetSpanService return the service name for span;
 func (s *Span) GetSpanService() (spanService string, found bool) {
+	ans := s.Process.ServiceName
+	if len(ans) > 0 {
+		return ans, true
+	}
+
 	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.Component)); ok {
 		return tag.AsString(), true
 	}

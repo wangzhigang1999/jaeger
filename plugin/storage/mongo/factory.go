@@ -65,9 +65,9 @@ func (f Factory) CreateSpanWriter() (spanstore.Writer, error) {
 }
 
 func (f *Factory) CreateSpanReader() (spanstore.Reader, error) {
-	panic("implement me")
+	return &SpanReader{mongoClient: f.mongoCli, collection: f.collection}, nil
 }
 
 func (f *Factory) CreateDependencyReader() (dependencystore.Reader, error) {
-	panic("implement me")
+	return &SpanReader{mongoClient: f.mongoCli, collection: f.collection}, nil
 }

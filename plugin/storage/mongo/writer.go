@@ -2,6 +2,8 @@ package mongo
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/jaegertracing/jaeger/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,6 +17,11 @@ type SpanWriter struct {
 }
 
 func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
+	return receiver.WriteCustomSpan(ctx, span)
+}
+
+// WriteDefault This will write everything to mongo
+func (receiver SpanWriter) WriteDefault(ctx context.Context, span *model.Span) error {
 	mSpan := Span{
 		TraceID:       span.TraceID.String(),
 		SpanID:        span.SpanID.String(),
@@ -28,16 +35,16 @@ func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) erro
 		Warnings:      span.Warnings,
 	}
 	b, _ := bson.Marshal(mSpan)
-
 	_, err := receiver.collection.InsertOne(ctx, b)
-	go receiver.WriteCustomSpan(ctx, span)
 	return err
-
 }
 
-// WriteCustomSpan Only for our own project,you could remove it.
+// WriteCustomSpan Only for our own project,you could remove it or change it.
 func (receiver SpanWriter) WriteCustomSpan(ctx context.Context, span *model.Span) error {
-
+	//simply health check filter
+	if span.OperationName == "GET /health" || span.OperationName == "health check" {
+		return nil
+	}
 	kind, _ := span.GetSpanKind()
 	code, _ := span.GetSpanStatus()
 	service, _ := span.GetSpanService()
@@ -53,6 +60,8 @@ func (receiver SpanWriter) WriteCustomSpan(ctx context.Context, span *model.Span
 		ParentSpan:    span.ParentSpanID().String(),
 		Service:       service,
 	}
+	// print the original span for debug
+	fmt.Println(toJson(span))
 	parsedSpanBson, _ := bson.Marshal(parsedSpan)
 	_, err := receiver.collectionParsed.InsertOne(ctx, parsedSpanBson)
 	return err
@@ -100,4 +109,12 @@ func convertKeyValue(kv model.KeyValue) KeyValue {
 		Type:  ValueType(strings.ToLower(kv.VType.String())),
 		Value: kv.AsString(),
 	}
+}
+
+func toJson(v interface{}) string {
+	marshal, err := json.Marshal(v)
+	if err != nil {
+		return ""
+	}
+	return string(marshal)
 }
