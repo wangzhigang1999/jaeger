@@ -3,7 +3,6 @@ package mongo
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/jaegertracing/jaeger/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -61,7 +60,7 @@ func (receiver SpanWriter) WriteCustomSpan(ctx context.Context, span *model.Span
 		Service:       service,
 	}
 	// print the original span for debug
-	fmt.Println(toJson(span))
+	//fmt.Println(toJson(span))
 	parsedSpanBson, _ := bson.Marshal(parsedSpan)
 	_, err := receiver.collectionParsed.InsertOne(ctx, parsedSpanBson)
 	return err
