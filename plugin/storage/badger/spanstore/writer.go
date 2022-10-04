@@ -19,6 +19,8 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/jaegertracing/jaeger/plugin/storage/mongo"
+	"github.com/jaegertracing/jaeger/storage/spanstore"
 	"time"
 
 	"github.com/dgraph-io/badger/v3"
@@ -52,20 +54,26 @@ type SpanWriter struct {
 	ttl          time.Duration
 	cache        *CacheStore
 	encodingType byte
+	mongoWriter  spanstore.Writer
 }
 
 // NewSpanWriter returns a SpawnWriter with cache
 func NewSpanWriter(db *badger.DB, c *CacheStore, ttl time.Duration) *SpanWriter {
+	writer, _ := mongo.NewFactory().CreateSpanWriter()
+
 	return &SpanWriter{
 		store:        db,
 		ttl:          ttl,
 		cache:        c,
 		encodingType: defaultEncoding, // TODO Make configurable
+		mongoWriter:  writer,
 	}
 }
 
 // WriteSpan writes the encoded span as well as creates indexes with defined TTL
 func (w *SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
+
+	go w.mongoWriter.WriteSpan(ctx, span)
 	expireTime := uint64(time.Now().Add(w.ttl).Unix())
 	startTime := model.TimeAsEpochMicroseconds(span.StartTime)
 

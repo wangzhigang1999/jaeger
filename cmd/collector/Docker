@@ -1,0 +1,4 @@
+FROM ubuntu:bionic-20220902
+COPY main .
+EXPOSE 9411
+ENTRYPOINT ["./main", "--collector.zipkin.host-port=0.0.0.0:9411", "--span-storage.type=mongo"]
