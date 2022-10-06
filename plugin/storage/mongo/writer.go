@@ -16,6 +16,7 @@ type SpanWriter struct {
 }
 
 func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
+	go receiver.WriteDefault(ctx, span)
 	return receiver.WriteCustomSpan(ctx, span)
 }
 
