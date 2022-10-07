@@ -56,6 +56,91 @@ func (s *Span) HasSpanKind(kind ext.SpanKindEnum) bool {
 	return false
 }
 
+/**
+***************************根据实际需要来修改***************************
+ */
+type spanKindTagName string
+
+const (
+	HttpUrl                = spanKindTagName("http.url")
+	NodeId                 = spanKindTagName("node_id")
+	RequestSize            = spanKindTagName("request_size")
+	PeerAddress            = spanKindTagName("peer.address")
+	HttpStatusCode         = spanKindTagName("http.status_code")
+	HttpMethod             = spanKindTagName("http.method")
+	IstioCanonicalService  = spanKindTagName("istio.canonical_service")
+	UpstreamCluster        = spanKindTagName("upstream_cluster")
+	HttpProtocol           = spanKindTagName("http.protocol")
+	IstioCanonicalRevision = spanKindTagName("istio.canonical_revision")
+	DownstreamCluster      = spanKindTagName("downstream_cluster")
+	UpstreamClusterName    = spanKindTagName("upstream_cluster.name")
+	IstioNamespace         = spanKindTagName("istio.namespace")
+	ResponseFlags          = spanKindTagName("response_flags")
+	IstioMeshId            = spanKindTagName("istio.mesh_id")
+	UserAgent              = spanKindTagName("user_agent")
+	ResponseSize           = spanKindTagName("response_size")
+	Component              = spanKindTagName("component")
+	SpanKind               = spanKindTagName("span.kind")
+	InternalSpanFormat     = spanKindTagName("internal.span.format")
+)
+
+// GetSpanService return the service name for span;
+func (s *Span) GetSpanService() (spanService string, found bool) {
+
+	// 首先去拿Istio的标准服务名称
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(IstioCanonicalService)); ok {
+		return tag.AsString(), true
+	}
+
+	// 接着去拿处理的进程对应的服务名称
+	ans := s.Process.ServiceName
+	if len(ans) > 0 {
+		return ans, true
+	}
+	// 最后去拿Component，不一定是真正的服务名称
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.Component)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanComponent() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(Component)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanHttpUrl() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(HttpUrl)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanNodeId() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(NodeId)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanReqSize() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(RequestSize)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanRespSize() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(ResponseSize)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // GetSpanKind returns value of `span.kind` tag and whether the tag can be found
 func (s *Span) GetSpanKind() (spanKind string, found bool) {
 	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.SpanKind)); ok {
@@ -79,19 +164,6 @@ func (s *Span) GetSamplerType() string {
 // GetSpanStatus returns the status code for span
 func (s *Span) GetSpanStatus() (spanStatus string, found bool) {
 	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.HTTPStatusCode)); ok {
-		return tag.AsString(), true
-	}
-	return "", false
-}
-
-// GetSpanService return the service name for span;
-func (s *Span) GetSpanService() (spanService string, found bool) {
-	ans := s.Process.ServiceName
-	if len(ans) > 0 {
-		return ans, true
-	}
-
-	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.Component)); ok {
 		return tag.AsString(), true
 	}
 	return "", false

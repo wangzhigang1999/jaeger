@@ -18,6 +18,10 @@ type SpanWriter struct {
 }
 
 func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
+	component, b := span.GetSpanComponent()
+	if !b || component != "proxy" {
+		return nil
+	}
 	go receiver.WriteDefault(ctx, span)
 	return receiver.WriteCustomSpan(ctx, span)
 }
@@ -46,27 +50,7 @@ func (receiver SpanWriter) WriteDefault(ctx context.Context, span *model.Span) e
 
 // WriteCustomSpan Only for our own project,you could remove it or change it.
 func (receiver SpanWriter) WriteCustomSpan(ctx context.Context, span *model.Span) error {
-	//simply health check filter
-	if span.OperationName == "GET /health" || span.OperationName == "health check" {
-		return nil
-	}
-	kind, _ := span.GetSpanKind()
-	code, _ := span.GetSpanStatus()
-	service, _ := span.GetSpanService()
-
-	parsedSpan := SpanParsed{
-		TraceID:       span.TraceID.String(),
-		SpanID:        span.SpanID.String(),
-		OperationName: span.OperationName,
-		StartTime:     span.StartTime,
-		Duration:      span.Duration.Microseconds(),
-		Type:          kind,
-		StatusCode:    code,
-		ParentSpan:    span.ParentSpanID().String(),
-		Service:       service,
-	}
-	// print the original span for debug
-	//fmt.Println(toJson(span))
+	parsedSpan := Extractor(span)
 	parsedSpanBson, _ := bson.Marshal(parsedSpan)
 	_, err := receiver.collectionParsed.InsertOne(ctx, parsedSpanBson)
 	return err
@@ -122,4 +106,31 @@ func toJson(v interface{}) string {
 		return ""
 	}
 	return string(marshal)
+}
+
+func Extractor(span *model.Span) SpanParsed {
+	kind, _ := span.GetSpanKind()
+	code, _ := span.GetSpanStatus()
+	service, _ := span.GetSpanService()
+	url, _ := span.GetSpanHttpUrl()
+	respSize, _ := span.GetSpanRespSize()
+	reqSize, _ := span.GetSpanReqSize()
+	nodeId, _ := span.GetSpanNodeId()
+
+	parsedSpan := SpanParsed{
+		TraceID:       span.TraceID.String(),
+		SpanID:        span.SpanID.String(),
+		OperationName: span.OperationName,
+		StartTime:     span.StartTime,
+		Duration:      int64(span.Duration),
+		Service:       service,
+		Type:          kind,
+		StatusCode:    code,
+		ParentSpan:    span.ParentSpanID().String(),
+		URL:           url,
+		ResponseSize:  respSize,
+		RequestSize:   reqSize,
+		CMDB:          nodeId,
+	}
+	return parsedSpan
 }

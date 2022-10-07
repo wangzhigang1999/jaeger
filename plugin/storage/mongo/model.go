@@ -59,6 +59,9 @@ type SpanParsed struct {
 	Type          string    `json:"type,omitempty" bson:"type"`
 	StatusCode    string    `json:"statusCode,omitempty" bson:"statusCode"`
 	ParentSpan    string    `json:"parentSpan,omitempty" bson:"parentSpan"`
+	URL           string    `json:"url,omitempty" bson:"url"`
+	RequestSize   string    `json:"requestSize,omitempty" bson:"requestSize"`
+	ResponseSize  string    `json:"responseSize,omitempty" bson:"responseSize"`
 }
 
 // Reference is a reference from one span to another
