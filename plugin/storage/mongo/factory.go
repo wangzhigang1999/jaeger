@@ -61,7 +61,7 @@ func (f *Factory) InitFromOptions(opts Options) {
 }
 
 func (f Factory) CreateSpanWriter() (spanstore.Writer, error) {
-	return SpanWriter{mongoClient: f.mongoCli, collection: f.collection, collectionParsed: f.collectionParsed}, nil
+	return SpanWriter{mongoClient: f.mongoCli, collection: f.collection, collectionParsed: f.collectionParsed, output: f.options.Configuration.Output}, nil
 }
 
 func (f *Factory) CreateSpanReader() (spanstore.Reader, error) {

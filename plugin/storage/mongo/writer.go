@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/jaegertracing/jaeger/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,6 +14,7 @@ type SpanWriter struct {
 	mongoClient      *mongo.Client
 	collection       *mongo.Collection
 	collectionParsed *mongo.Collection
+	output           bool
 }
 
 func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
@@ -36,6 +38,9 @@ func (receiver SpanWriter) WriteDefault(ctx context.Context, span *model.Span) e
 	}
 	b, _ := bson.Marshal(mSpan)
 	_, err := receiver.collection.InsertOne(ctx, b)
+	if receiver.output {
+		fmt.Println(toJson(mSpan))
+	}
 	return err
 }
 

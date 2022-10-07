@@ -12,6 +12,7 @@ const (
 	mongoCollection = "mongo_collection"
 	mongoUserName   = "mongo_user"
 	mongoPassWord   = "mongo_pass"
+	output          = "output"
 	namespacePrefix = ""
 )
 
@@ -22,6 +23,7 @@ type Configuration struct {
 	PassWord   string `json:"passWord"`
 	Collection string `json:"collection"`
 	Database   string `json:"database"`
+	Output     bool   `json:"output"`
 }
 
 type Options struct {
@@ -36,6 +38,8 @@ func (opt *Options) InitFromViper(v *viper.Viper) {
 	opt.Configuration.Collection = v.GetString(mongoCollection)
 	opt.Configuration.PassWord = v.GetString(mongoPassWord)
 	opt.Configuration.UserName = v.GetString(mongoUserName)
+	opt.Configuration.Output = v.GetBool(output)
+
 }
 
 func (opt Options) AddFlags(flagSet *flag.FlagSet) {
@@ -68,6 +72,11 @@ func (opt Options) AddFlags(flagSet *flag.FlagSet) {
 		namespacePrefix+mongoPassWord,
 		"root",
 		"mongodb password",
+	)
+	flagSet.Bool(
+		namespacePrefix+output,
+		false,
+		"print span to screen in json format",
 	)
 
 }
