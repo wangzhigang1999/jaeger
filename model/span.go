@@ -17,6 +17,7 @@ package model
 
 import (
 	"encoding/gob"
+	"github.com/jaegertracing/jaeger/plugin/storage/mongo"
 	"io"
 	"strconv"
 
@@ -56,6 +57,60 @@ func (s *Span) HasSpanKind(kind ext.SpanKindEnum) bool {
 	return false
 }
 
+/**
+***************************根据实际需要来修改***************************
+ */
+
+// GetSpanService return the service name for span;
+func (s *Span) GetSpanService() (spanService string, found bool) {
+
+	// 首先去拿Istio的标准服务名称
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(mongo.IstioCanonicalService)); ok {
+		return tag.AsString(), true
+	}
+
+	// 接着去拿处理的进程对应的服务名称
+	ans := s.Process.ServiceName
+	if len(ans) > 0 {
+		return ans, true
+	}
+	// 最后去拿Component，不一定是真正的服务名称
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.Component)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanHttpUrl() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(mongo.HttpUrl)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanNodeId() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(mongo.NodeId)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanReqSize() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(mongo.RequestSize)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanRespSize() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(mongo.ResponseSize)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // GetSpanKind returns value of `span.kind` tag and whether the tag can be found
 func (s *Span) GetSpanKind() (spanKind string, found bool) {
 	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.SpanKind)); ok {
@@ -79,19 +134,6 @@ func (s *Span) GetSamplerType() string {
 // GetSpanStatus returns the status code for span
 func (s *Span) GetSpanStatus() (spanStatus string, found bool) {
 	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.HTTPStatusCode)); ok {
-		return tag.AsString(), true
-	}
-	return "", false
-}
-
-// GetSpanService return the service name for span;
-func (s *Span) GetSpanService() (spanService string, found bool) {
-	ans := s.Process.ServiceName
-	if len(ans) > 0 {
-		return ans, true
-	}
-
-	if tag, ok := KeyValues(s.Tags).FindByKey(string(ext.Component)); ok {
 		return tag.AsString(), true
 	}
 	return "", false
