@@ -45,3 +45,6 @@ deploy/
 deploy-staging/
 sha256sum.combined.txt
 /cmd/all-in-one/build.cmd
+/plugin/storage/mongo/exactor_test.go
+/cmd/all-in-one/main
+/plugin/storage/mongo/span.json

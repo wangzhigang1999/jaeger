@@ -24,7 +24,7 @@ func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) erro
 
 // WriteDefault This will write everything to mongo
 func (receiver SpanWriter) WriteDefault(ctx context.Context, span *model.Span) error {
-	mSpan := Span{
+	mSpan := MongoSpan{
 		TraceID:       span.TraceID.String(),
 		SpanID:        span.SpanID.String(),
 		OperationName: span.OperationName,

@@ -32,56 +32,57 @@ const (
 	Float64Type ValueType = "float64"
 )
 
-// Span is MongoDB representation of the domain span.
-type Span struct {
-	TraceID       string      `bson:"traceID"`
-	SpanID        string      `bson:"spanID"`
-	OperationName string      `bson:"operationName"`
-	StartTime     time.Time   `bson:"startTime"` // microseconds since Unix epoch
-	Duration      int64       `bson:"duration"`  // microseconds
-	References    []Reference `bson:"references"`
-	ProcessID     string      `bson:"processID"`
-	Process       Process     `bson:"process,omitempty"`
-	Tags          []KeyValue  `bson:"tags"`
-	Logs          []Log       `bson:"logs"`
-	Warnings      []string    `bson:"warnings"`
+// MongoSpan is MongoDB representation of the domain span.
+type MongoSpan struct {
+	TraceID       string      `bson:"traceID" json:"traceID,omitempty"`
+	SpanID        string      `bson:"spanID" json:"spanID,omitempty"`
+	OperationName string      `bson:"operationName" json:"operationName,omitempty"`
+	StartTime     time.Time   `bson:"startTime" json:"startTime"`         // microseconds since Unix epoch
+	Duration      int64       `bson:"duration" json:"duration,omitempty"` // microseconds
+	References    []Reference `bson:"references" json:"references,omitempty"`
+	ProcessID     string      `bson:"processID" json:"processID,omitempty"`
+	Process       Process     `bson:"process,omitempty" json:"process"`
+	Tags          []KeyValue  `bson:"tags" json:"tags,omitempty"`
+	Logs          []Log       `bson:"logs" json:"logs,omitempty"`
+	Warnings      []string    `bson:"warnings" json:"warnings,omitempty"`
 }
 
 // SpanParsed only for our project,you may remove it if not needed.
 type SpanParsed struct {
-	TraceID       string    `bson:"trace_id"`
-	SpanID        string    `bson:"span_id"`
-	OperationName string    `bson:"operationName"`
-	StartTime     time.Time `bson:"timestamp"` // microseconds since Unix epoch
-	Duration      int64     `bson:"duration"`  // microseconds
-	Service       string    `bson:"cmdb_id"`
-	Type          string    `bson:"type"`
-	StatusCode    string    `bson:"status_code"`
-	ParentSpan    string    `bson:"parent_span"`
+	TraceID       string    `json:"traceID,omitempty" bson:"traceID"`
+	SpanID        string    `json:"spanID,omitempty" bson:"spanID"`
+	OperationName string    `json:"operationName,omitempty" bson:"operationName"`
+	StartTime     time.Time `json:"startTime" bson:"startTime"`
+	Duration      int64     `json:"duration,omitempty" bson:"duration"`
+	Service       string    `json:"service,omitempty" bson:"service"`
+	CMDB          string    `json:"CMDB,omitempty" bson:"CMDB"`
+	Type          string    `json:"type,omitempty" bson:"type"`
+	StatusCode    string    `json:"statusCode,omitempty" bson:"statusCode"`
+	ParentSpan    string    `json:"parentSpan,omitempty" bson:"parentSpan"`
 }
 
 // Reference is a reference from one span to another
 type Reference struct {
-	RefType ReferenceType `bson:"refType"`
-	TraceID TraceID       `bson:"traceID"`
-	SpanID  SpanID        `bson:"spanID"`
+	RefType ReferenceType `bson:"refType" json:"refType,omitempty"`
+	TraceID TraceID       `bson:"traceID" json:"traceID,omitempty"`
+	SpanID  SpanID        `bson:"spanID" json:"spanID,omitempty"`
 }
 
 // Process is the process emitting a set of spans
 type Process struct {
-	ServiceName string     `bson:"serviceName"`
-	Tags        []KeyValue `bson:"tags"`
+	ServiceName string     `bson:"serviceName" json:"serviceName,omitempty"`
+	Tags        []KeyValue `bson:"tags" json:"tags,omitempty"`
 }
 
 // Log is a log emitted in a span
 type Log struct {
-	Timestamp uint64     `bson:"timestamp"`
-	Fields    []KeyValue `bson:"fields"`
+	Timestamp uint64     `bson:"timestamp" json:"timestamp,omitempty"`
+	Fields    []KeyValue `bson:"fields" json:"fields,omitempty"`
 }
 
 // KeyValue is a key-value pair with typed value.
 type KeyValue struct {
-	Key   string      `bson:"key"`
-	Type  ValueType   `bson:"type,omitempty"`
-	Value interface{} `bson:"value"`
+	Key   string      `bson:"key" json:"key,omitempty"`
+	Type  ValueType   `bson:"type,omitempty" json:"type,omitempty"`
+	Value interface{} `bson:"value" json:"value,omitempty"`
 }

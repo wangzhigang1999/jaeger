@@ -182,7 +182,7 @@ func (s *SpanReader) findTraces(ctx context.Context, ids []string) (map[string]*
 
 	tracesMap := make(map[string]*model.Trace, len(ids))
 	for cur.Next(ctx) {
-		var ms Span
+		var ms MongoSpan
 		err := cur.Decode(&ms)
 
 		if err != nil {
