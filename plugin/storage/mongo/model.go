@@ -13,7 +13,7 @@ type TraceID string
 // SpanID is the id of a span
 type SpanID string
 
-// ValueType is the type of a value stored in KeyValue struct.
+// ValueType is the type of value stored in KeyValue struct.
 type ValueType string
 
 const (
@@ -49,19 +49,21 @@ type MongoSpan struct {
 
 // SpanParsed only for our project,you may remove it if not needed.
 type SpanParsed struct {
-	TraceID       string    `json:"traceID,omitempty" bson:"traceID"`
-	SpanID        string    `json:"spanID,omitempty" bson:"spanID"`
-	OperationName string    `json:"operationName,omitempty" bson:"operationName"`
-	StartTime     time.Time `json:"startTime" bson:"startTime"`
-	Duration      int64     `json:"duration,omitempty" bson:"duration"`
-	Service       string    `json:"service,omitempty" bson:"service"`
-	CMDB          string    `json:"CMDB,omitempty" bson:"CMDB"`
-	Type          string    `json:"type,omitempty" bson:"type"`
-	StatusCode    string    `json:"statusCode,omitempty" bson:"statusCode"`
-	ParentSpan    string    `json:"parentSpan,omitempty" bson:"parentSpan"`
-	URL           string    `json:"url,omitempty" bson:"url"`
-	RequestSize   string    `json:"requestSize,omitempty" bson:"requestSize"`
-	ResponseSize  string    `json:"responseSize,omitempty" bson:"responseSize"`
+	TraceID           string        `json:"traceID,omitempty" bson:"traceID"`
+	SpanID            string        `json:"spanID,omitempty" bson:"spanID"`
+	OperationName     string        `json:"operationName,omitempty" bson:"operationName"`
+	RealOperationName string        `json:"realOperationName,omitempty" bson:"realOperationName"`
+	StartTime         time.Time     `json:"startTime" bson:"startTime"`
+	Duration          time.Duration `json:"duration,omitempty" bson:"duration"`
+	Service           string        `json:"service,omitempty" bson:"service"`
+	CMDB              string        `json:"CMDB,omitempty" bson:"CMDB"`
+	Type              string        `json:"type,omitempty" bson:"type"`
+	StatusCode        string        `json:"statusCode,omitempty" bson:"statusCode"`
+	ParentSpan        string        `json:"parentSpan,omitempty" bson:"parentSpan"`
+	URL               string        `json:"url,omitempty" bson:"url"`
+	RequestSize       string        `json:"requestSize,omitempty" bson:"requestSize"`
+	ResponseSize      string        `json:"responseSize,omitempty" bson:"responseSize"`
+	Method            string        `json:"method,omitempty" bson:"method"`
 }
 
 // Reference is a reference from one span to another

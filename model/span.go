@@ -111,6 +111,20 @@ func (s Span) GetSpanComponent() (string, bool) {
 	return "", false
 }
 
+func (s Span) GetSpanUserAgent() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(UserAgent)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
+func (s Span) GetSpanMethod() (string, bool) {
+	if tag, ok := KeyValues(s.Tags).FindByKey(string(HttpMethod)); ok {
+		return tag.AsString(), true
+	}
+	return "", false
+}
+
 func (s Span) GetSpanHttpUrl() (string, bool) {
 	if tag, ok := KeyValues(s.Tags).FindByKey(string(HttpUrl)); ok {
 		return tag.AsString(), true
