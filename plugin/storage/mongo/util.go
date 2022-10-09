@@ -8,6 +8,7 @@ import (
 )
 
 var unNecessaryUserAgent = []string{"Prometheus"}
+var unNecessaryURL = []string{"metrics"}
 
 func convertProcess(process *model.Process) Process {
 	return Process{
@@ -111,7 +112,12 @@ func parseUrl(url string) string {
 	return url
 }
 
-func SpanFilter(span *model.Span) bool {
+func SpanNeedFilter(span *model.Span) bool {
+	// 如果没有URL，可以认为它不是来自Istio
+	url, fromIstio := span.GetSpanHttpUrl()
+	if !fromIstio || StringContainsAny(url, unNecessaryURL) {
+		return true
+	}
 	component, b := span.GetSpanComponent()
 	if !b || component != "proxy" {
 		return true
@@ -132,6 +138,15 @@ func SpanFilter(span *model.Span) bool {
 func InSlice(val interface{}, slice []string) bool {
 	for _, v := range slice {
 		if v == val {
+			return true
+		}
+	}
+	return false
+}
+
+func StringContainsAny(str string, slice []string) bool {
+	for index := range slice {
+		if strings.Contains(str, slice[index]) {
 			return true
 		}
 	}

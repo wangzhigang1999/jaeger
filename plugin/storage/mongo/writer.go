@@ -16,11 +16,16 @@ type SpanWriter struct {
 }
 
 func (receiver SpanWriter) WriteSpan(ctx context.Context, span *model.Span) error {
-	needFilter := SpanFilter(span)
-	if needFilter {
+	spanNeedFilter := SpanNeedFilter(span)
+	if spanNeedFilter {
 		return nil
 	}
-	go receiver.WriteDefault(ctx, span)
+	go func() {
+		err := receiver.WriteDefault(ctx, span)
+		if err != nil {
+
+		}
+	}()
 	return receiver.WriteCustomSpan(ctx, span)
 }
 
